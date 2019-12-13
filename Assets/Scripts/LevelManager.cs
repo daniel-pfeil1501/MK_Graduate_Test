@@ -48,14 +48,12 @@ public class LevelManager : MonoBehaviour
 
         deltaX += horizontalMoveSpeed * Time.deltaTime;
         score += horizontalMoveSpeed * Time.deltaTime;
-        Debug.Log(score);
 
         if (deltaX >= platformLength)
         {
             float excess = deltaX - platformLength;
 
             GameObject newPlatform = objectPooler.GetObjectFromPool();
-            //newPlatform.transform.position = platformSpawnLocation + Vector3.right * platformLength * (numberOfInitialPlatforms - 1);
             newPlatform.transform.position = platformList[platformList.Count - 1].transform.position + (Vector3.right * (platformLength + excess));
             newPlatform.SetActive(true);
             platformList.Add(newPlatform);
