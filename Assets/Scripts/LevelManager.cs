@@ -36,7 +36,6 @@ public class LevelManager : MonoBehaviour
         GameObject initialPlatform = objectPooler.GetObjectFromPool("basic_platform");
         initialPlatform.transform.position = platformSpawnLocation;
         initialPlatform.SetActive(true);
-        //platformLength = initalPlatform.GetComponent<Collider2D>().bounds.size.x;
         platformLength = initialPlatform.transform.localScale.x;
 
         platformList.Add(initialPlatform);
@@ -44,7 +43,7 @@ public class LevelManager : MonoBehaviour
         for (int i = 1; i < numberOfInitialPlatforms; i++)
         {
             initialPlatform = objectPooler.GetObjectFromPool("basic_platform");
-            initialPlatform.transform.position = platformSpawnLocation + Vector3.right * i * platformLength;
+            initialPlatform.transform.position = platformSpawnLocation + Vector3.right * i * (platformLength - 0.05f);
             initialPlatform.SetActive(true);
             platformList.Add(initialPlatform);
         }

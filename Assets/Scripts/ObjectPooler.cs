@@ -41,7 +41,6 @@ public class ObjectPooler : MonoBehaviour
         }
         for (int i = 0; i < pool.Count; i++)
         {
-            Debug.Log("requesting item: " + itemName + "  Found: " + pool[i].name);
             if (!pool[i].activeInHierarchy && pool[i].name == itemName)
             {
 
