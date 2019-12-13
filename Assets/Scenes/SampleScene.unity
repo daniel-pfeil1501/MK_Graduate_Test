@@ -459,3 +459,9 @@ MonoBehaviour:
   fallMulti: 5
   lowJumpMulti: 5
   catchUpSpeed: 2
+  climbSpeed: 5
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 256
+  numberOfRays: 3
+  rayInsetAmount: 0.2

@@ -7,10 +7,20 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private Collider2D collider;
 
+
     [SerializeField] private float fallMulti = 2.5f;
     [SerializeField] private float lowJumpMulti = 2f;
 
     [SerializeField] private float catchUpSpeed;
+    [SerializeField] private float climbSpeed;
+    private float gravityScale;
+
+    [SerializeField] LayerMask layerMask;
+    [SerializeField, Range(2,6)] int numberOfRays;
+    [SerializeField] private float rayInsetAmount;          //Used to stop the player gollding with the ground when running on a flat surface.
+    private float rayLength;                                //Ray length to detect the player colliding with the side of an obstacle;
+    private Vector2 rayOrigin;
+    private float raySpacing;
 
     private Vector2 inputVelocity;
 
@@ -19,11 +29,21 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         collider = GetComponent<Collider2D>();
         inputVelocity = Vector2.zero;
+
+        rayLength = collider.bounds.size.x + 0.02f;
+        raySpacing = (collider.bounds.size.y - rayInsetAmount * 2) / (numberOfRays - 1);
+
+        gravityScale = rb.gravityScale;
     }
 
     public void AddInputToVelocity(Vector2 input)
     {
         inputVelocity = input;
+    }
+
+    private void Update()
+    {
+        rayOrigin = new Vector2(collider.bounds.max.x, collider.bounds.min.y + rayInsetAmount);
     }
 
     private void FixedUpdate()
@@ -32,6 +52,15 @@ public class PlayerController : MonoBehaviour
 
         Jump();
         Catchup();
+        if (DetectCollision())
+        {
+            transform.position += new Vector3(0, climbSpeed * Time.deltaTime, 0);
+            rb.gravityScale = 0f;
+        }
+        else
+        {
+            rb.gravityScale = gravityScale;
+        }
 
 
     }
@@ -59,6 +88,21 @@ public class PlayerController : MonoBehaviour
         {
             transform.Translate(Vector2.right * catchUpSpeed * Time.deltaTime);
         }
+    }
+
+    private bool DetectCollision()
+    {
+        bool hit = false;
+
+        for (int i = 0; i < numberOfRays; i++)
+        {
+            Debug.DrawRay(rayOrigin + Vector2.up * raySpacing * i, Vector2.right, Color.red);
+            if (Physics2D.Raycast(rayOrigin + Vector2.up * i * raySpacing, Vector2.right, rayLength, layerMask)) { hit = true; }
+        }
+
+        return hit;
+
+
     }
 
 
