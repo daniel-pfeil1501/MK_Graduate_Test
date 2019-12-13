@@ -28,12 +28,15 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         collider = GetComponent<Collider2D>();
+
         inputVelocity = Vector2.zero;
 
         rayLength = collider.bounds.size.x + 0.02f;
         raySpacing = (collider.bounds.size.y - rayInsetAmount * 2) / (numberOfRays - 1);
 
         gravityScale = rb.gravityScale;
+
+        
     }
 
     public void AddInputToVelocity(Vector2 input)
@@ -101,11 +104,15 @@ public class PlayerController : MonoBehaviour
         }
 
         return hit;
-
-
     }
 
+    public void ChangeClimbSpeed(float amount)
+    {
+        climbSpeed *= amount;
+    }
 
-
-
+    public void ChangeCatchUpSpeed(float amount)
+    {
+        catchUpSpeed *= amount;
+    }
 }

@@ -7,6 +7,7 @@ public class LevelManager : MonoBehaviour
     private float score;
 
     private ObjectPooler objectPooler;
+    private PowerupManager powerupManager;
 
     private List<GameObject> platformList;
     private Vector3 platformSpawnLocation;
@@ -16,6 +17,8 @@ public class LevelManager : MonoBehaviour
 
 
     [SerializeField] private float horizontalMoveSpeed;
+    private float defaultMoveSpeed;
+
     [SerializeField] private int maxActivePlatforms;
     [SerializeField] private int numberOfInitialPlatforms;
 
@@ -25,6 +28,7 @@ public class LevelManager : MonoBehaviour
     private void Start()
     {
         objectPooler = ObjectPooler.SharedInstance;
+
         platformList = new List<GameObject>();
         GenerateDictionary();
 
@@ -32,6 +36,7 @@ public class LevelManager : MonoBehaviour
 
         platformSpawnLocation = new Vector3(0, -2, 0);
         deltaX = 0;
+        defaultMoveSpeed = horizontalMoveSpeed;
 
         GameObject initialPlatform = objectPooler.GetObjectFromPool("basic_platform");
         initialPlatform.transform.position = platformSpawnLocation;
@@ -89,5 +94,15 @@ public class LevelManager : MonoBehaviour
         {
             platformDictionary.Add(i, platformsToUse[i].name);
         }
+    }
+
+    public void changeLevelMoveSpeed(float speed)
+    {
+        horizontalMoveSpeed = speed;
+    }
+
+    public float GetCurentSpeed()
+    {
+        return horizontalMoveSpeed;
     }
 }
