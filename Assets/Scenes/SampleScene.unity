@@ -150,9 +150,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcb0cc52d450c9f49bc58b927ac4ff20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectToPool: {fileID: 1794843418237283602, guid: 3fda5d148f3e6de44bf3daaeffd7d0c6,
-    type: 3}
-  amountToPool: 5
+  pooledItems:
+  - objectToPool: {fileID: 1794843418237283602, guid: 3fda5d148f3e6de44bf3daaeffd7d0c6,
+      type: 3}
+    amountToPool: 5
+  - objectToPool: {fileID: 3097071649963245297, guid: e434f4e4d9d77e94bab1902728ab16a1,
+      type: 3}
+    amountToPool: 5
+  - objectToPool: {fileID: 730738961316040454, guid: 81eda3dc8cb882a41b902ac1e4778b99,
+      type: 3}
+    amountToPool: 5
 --- !u!114 &508377853
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -168,6 +175,10 @@ MonoBehaviour:
   horizontalMoveSpeed: 10
   maxActivePlatforms: 4
   numberOfInitialPlatforms: 3
+  platformsToUse:
+  - {fileID: 1794843418237283602, guid: 3fda5d148f3e6de44bf3daaeffd7d0c6, type: 3}
+  - {fileID: 3097071649963245297, guid: e434f4e4d9d77e94bab1902728ab16a1, type: 3}
+  - {fileID: 730738961316040454, guid: 81eda3dc8cb882a41b902ac1e4778b99, type: 3}
 --- !u!4 &508377854
 Transform:
   m_ObjectHideFlags: 0
@@ -302,8 +313,8 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 256
-  fallMulti: 2.5
-  lowJumpMulti: 2
+  fallMulti: 5
+  lowJumpMulti: 3
 --- !u!50 &1069703103
 Rigidbody2D:
   serializedVersion: 4

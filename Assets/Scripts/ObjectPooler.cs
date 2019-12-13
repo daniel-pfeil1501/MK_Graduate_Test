@@ -2,14 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class ObjectPoolItem
+{
+    public GameObject objectToPool;
+    public int amountToPool;
+
+}
 public class ObjectPooler : MonoBehaviour
 {
+    [SerializeField] private List<ObjectPoolItem> pooledItems;
     public static ObjectPooler SharedInstance;
 
-    [SerializeField]
-    private GameObject objectToPool;
-    [SerializeField]
-    private int amountToPool = 5;
+
 
     private List<GameObject> pool;
 
@@ -26,16 +31,20 @@ public class ObjectPooler : MonoBehaviour
         }
     }
 
-    public GameObject GetObjectFromPool()
+    public GameObject GetObjectFromPool(string itemName)
     {
+        itemName += "(Clone)";
+
         if (pool == null)
         {
             GeneratePool();
         }
         for (int i = 0; i < pool.Count; i++)
         {
-            if (!pool[i].activeInHierarchy)
+            Debug.Log("requesting item: " + itemName + "  Found: " + pool[i].name);
+            if (!pool[i].activeInHierarchy && pool[i].name == itemName)
             {
+
                 return pool[i];
             }
         }
@@ -45,12 +54,14 @@ public class ObjectPooler : MonoBehaviour
     private void GeneratePool()
     {
         pool = new List<GameObject>();
-
-        for (int i = 0; i < amountToPool; i++)
+        for(int i = 0;i < pooledItems.Count; i++)
         {
-            GameObject o = Instantiate(objectToPool);
-            o.SetActive(false);
-            pool.Add(o);
+            for(int j = 0;j < pooledItems[i].amountToPool; j++)
+            {
+                GameObject o = Instantiate(pooledItems[i].objectToPool);
+                o.SetActive(false);
+                pool.Add(o);
+            }
         }
     }
 }
