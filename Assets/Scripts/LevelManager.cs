@@ -1,14 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour
 {
     private float totalDistance;
 
     private ObjectPooler objectPooler;
-    private PowerupManager powerupManager;
+
     [SerializeField] GameStateMananger gameStateManager;
+    [SerializeField] Text currentDistanceText;
 
     private List<GameObject> platformList;
     private GameObject initialPlatform;
@@ -49,6 +51,7 @@ public class LevelManager : MonoBehaviour
         {
             deltaX += horizontalMoveSpeed * Time.deltaTime;
             totalDistance += horizontalMoveSpeed * Time.deltaTime;
+            currentDistanceText.text = string.Format("Distance: {0,4}", (int)totalDistance);
         }
         if (deltaX >= platformLength)
         {

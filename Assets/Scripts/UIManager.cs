@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private GameStateMananger gameStateMananger;
+    [SerializeField] private PowerupManager powerUpManager;
 
     private Color colour;
     [SerializeField] private float alphaIncreaseRate;
@@ -16,11 +17,17 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text collectedText;
     [SerializeField] private Text climbsCollectedText;
     [SerializeField] private Text catchUpsCollectedText;
+    [SerializeField] private Text itemBonusText;
     [SerializeField] private Text scoreText;
     [SerializeField] private Text highScoreText;
+    [SerializeField] private Text currentDistanceText;
+
+    [SerializeField] private Image climbSpeedBuffIcon;
+    [SerializeField] private Image catchUpBuffIcon;
 
     [SerializeField] private Canvas mainMenuCanvas;
     [SerializeField] private Canvas gameOverCanvas;
+    [SerializeField] private Canvas inGameCanvas;
 
     private bool gameOver;
     private int score;
@@ -34,7 +41,14 @@ public class UIManager : MonoBehaviour
         gameStateMananger.restartEvent += OnGameRestart;
         gameStateMananger.mainMenuEvent += OnMainMenu;
 
+        powerUpManager.puPickupEvent += PowerUpCollected;
+        powerUpManager.expiredEvent += PowerUpExpired;
+
+        inGameCanvas.enabled = false;
         gameOverCanvas.enabled = false;
+
+        climbSpeedBuffIcon.enabled = false;
+        catchUpBuffIcon.enabled = false;
 
         colour = gameOverText.color;
         colour.a = 0;
@@ -57,12 +71,16 @@ public class UIManager : MonoBehaviour
     public void OnGameOver()
     {
         gameOver = true;
+        currentDistanceText.enabled = false;
         gameOverCanvas.enabled = true;
     }
 
     public void OnGameStart()
     {
         score = 0;
+        inGameCanvas.enabled = true;
+
+        currentDistanceText.enabled = true; ;
         highScoreText.enabled = false;
         mainMenuCanvas.enabled = false;
     }
@@ -70,12 +88,14 @@ public class UIManager : MonoBehaviour
     public void OnGameRestart()
     {
         score = 0;
+        currentDistanceText.enabled = true; ;
         highScoreText.enabled = false;
         gameOverCanvas.enabled = false;
     }
 
     public void OnMainMenu()
     {
+        inGameCanvas.enabled = false;
         gameOverCanvas.enabled = false;
         mainMenuCanvas.enabled = true;
     }
@@ -83,31 +103,60 @@ public class UIManager : MonoBehaviour
     public void SetRunDistance(int dist)
     {
         runDistanceText.enabled = true;
-        runDistanceText.text = "You ran: " + dist + " meters.";
+        runDistanceText.text = string.Format("You ran: {0,25} meters", dist);
         score += dist;
     }
 
     public void SetItemsCollected(int[] amount)
     {
+        int itemBonus = 0;
         collectedText.enabled = true;
         climbsCollectedText.enabled = true;
         catchUpsCollectedText.enabled = true;
         climbsCollectedText.text = "x " + amount[0].ToString();
         catchUpsCollectedText.text = "x " + amount[1].ToString();
 
-        score += amount[0] * 10;
-        score += amount[1] * 10;
+        itemBonus += (amount[0] + amount[1]) * 10;
+        itemBonusText.text = string.Format("Item Bonus: {0,31}", itemBonus);
+        score += itemBonus;
     }
 
     private void CheckIfHighScore()
     {
         int highScore = PlayerPrefs.GetInt("HighScore");
-        scoreText.text = "Score: " + score.ToString();
+        //scoreText.text = "Score: " + score.ToString();
+        scoreText.text = string.Format("Total Score: {0,30}", score);
 
         if(score > highScore)
         {
             highScoreText.enabled = true;
             PlayerPrefs.SetInt("HighScore", score);
+        }
+    }
+
+    public void PowerUpCollected(PowerupManager.powerUpType type)
+    {
+        if(type == PowerupManager.powerUpType.climb)
+        {
+            climbSpeedBuffIcon.enabled = true;
+        }
+
+        if(type == PowerupManager.powerUpType.catchUp)
+        {
+            catchUpBuffIcon.enabled = true;
+        }
+    }
+
+    public void PowerUpExpired(PowerupManager.powerUpType type)
+    {
+        if (type == PowerupManager.powerUpType.climb)
+        {
+            climbSpeedBuffIcon.enabled = false;
+        }
+
+        if (type == PowerupManager.powerUpType.catchUp)
+        {
+            catchUpBuffIcon.enabled = false;
         }
     }
 

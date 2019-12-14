@@ -4,74 +4,70 @@ using UnityEngine;
 
 public class PowerupManager : MonoBehaviour
 {
+    public enum powerUpType { climb, catchUp, NumberOfTypes} //final enum is used to detect the number of available power-ups
+
+    public delegate void PickupPowerupDelegate(powerUpType type);
+    public event PickupPowerupDelegate puPickupEvent;
+
+    public delegate void PowerUpExpiredDelegate(powerUpType type);
+    public event PowerUpExpiredDelegate expiredEvent;
+
+    public delegate void EndPowerupDelegate(powerUpType type);
+    public event EndPowerupDelegate puEndEvent;
 
     [SerializeField] private GameStateMananger gameStateManager;
 
-    [SerializeField] private List<GameObject> powerupPrefabs;
-
-    private List<GameObject> powerupPool;
-
-    private PlayerController controller;
-    private LevelManager levelManager;
-
-    public static PowerupManager SharedInstance;
-
-    public delegate void EndPowerupDelegate(string powerupName);
-    public event EndPowerupDelegate puEndEvent;
-
+    private float[] powerUpTimers;
+    private bool[] activePowerUps;
     private int[] itemsCollected;
 
     private void Start()
     {
-        //FindObjectOfType<PlatformWithPowerup>().puPickupEvent += PowerUpCollected;
-        //FindObjectOfType<Powerup>().puEndEvent += PowerUpExpired;
+        int length = (int)powerUpType.NumberOfTypes;
+        itemsCollected = new int[length];
+        powerUpTimers = new float[length];
+        activePowerUps = new bool[length];
 
         gameStateManager.gameOverEvent += SendTotalItemsCollected;
-
-        controller = FindObjectOfType<PlayerController>();
-        levelManager = FindObjectOfType<LevelManager>();
-
-        PoolPowerups();
-
-        SharedInstance = this;
     }
 
-    private void PoolPowerups()
+    private void Update()
     {
-        int numberOfItems = 0;
-        powerupPool = new List<GameObject>();
-        for(int i =0;i < powerupPrefabs.Count; i++)
+        for(int i = 0; i < powerUpTimers.Length; i++)
         {
-            GameObject p = Instantiate(powerupPrefabs[i]);
-            p.SetActive(false);
-            powerupPool.Add(p);
-            numberOfItems++;
-        }
-        itemsCollected = new int[numberOfItems];
-    }
-
-    public GameObject RequestPowerup()
-    {
-        for(int i = 0;i < powerupPool.Count; i++)
-        {
-            if (!powerupPool[i].activeInHierarchy)
+            if(powerUpTimers[i] > 0)
             {
-                return powerupPool[i];
+                powerUpTimers[i] -= Time.deltaTime;
+                Debug.Log(powerUpTimers[i]);
+            }
+            else if (activePowerUps[i])
+            {
+                powerUpTimers[i] = 0;
+                activePowerUps[i] = false;
+                PowerUpExpired((powerUpType)i);
             }
         }
-        return null;
     }
 
-    public void PowerUpCollected(string name, float duration)
+    public void PowerUpCollected(powerUpType type, float duration)
     {
-        Debug.Log(name + " Collected");
-        if(name == "climbSpeed") { itemsCollected[0]++; }
-        if(name == "catchUpSpeed") { itemsCollected[1]++; }
+        itemsCollected[(int)type]++;
+        activePowerUps[(int)type] = true;
+        powerUpTimers[(int)type] += duration;
+
+        if(puPickupEvent != null)
+        {
+            puPickupEvent(type);
+        }
     }
 
-    public void PowerUpExpired(string name)
+    public void PowerUpExpired(powerUpType type)
     {
         Debug.Log(name + " Expired");
+        if(expiredEvent != null)
+        {
+            expiredEvent(type);
+        }
     }
 
     public void SendTotalItemsCollected()

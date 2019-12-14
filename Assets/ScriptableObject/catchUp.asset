@@ -10,8 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 23c152ee434eb4b44a5642f3a1761300, type: 3}
-  m_Name: climbSpeed
+  m_Name: catchUp
   m_EditorClassIdentifier: 
-  name: climbSpeed
+  type: 1
+  name: catchUp
   duration: 20
-  icon: {fileID: 4496002825605101114, guid: f9c5e40601e0ef6488ff8b1b450b0fbd, type: 3}
+  icon: {fileID: 7431443166627799094, guid: f9c5e40601e0ef6488ff8b1b450b0fbd, type: 3}

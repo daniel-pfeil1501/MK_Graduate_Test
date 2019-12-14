@@ -4,36 +4,42 @@ using UnityEngine;
 
 public class PlatformWithPowerup : MonoBehaviour
 {
-    [SerializeField] private PowerUpInfo powerUp;
-    [SerializeField] private SpriteRenderer renderer;
+    [SerializeField] private PowerUpInfo[] powerUps;
+    [SerializeField] private GameObject powerUpSpawn;
     [SerializeField] private Collider2D collider;
 
-    public delegate void PickupPowerupDelegate(string powerupName, float duration);
-    public event PickupPowerupDelegate puPickupEvent;
+    private PowerUpInfo powerUpToUse;
+    private SpriteRenderer renderer;
+
+    private PowerupManager powerUpManager;
 
     private void Start()
     {
-        renderer = GetComponent<SpriteRenderer>();
+        powerUpManager = FindObjectOfType<PowerupManager>();
+        renderer = powerUpSpawn.GetComponent<SpriteRenderer>();
+        powerUpToUse = powerUps[Random.Range(0, powerUps.Length)];
     }
     private void Awake()
     {
-        renderer.sprite = powerUp.icon;      
+        if(renderer == null)
+        {
+            renderer = powerUpSpawn.GetComponent<SpriteRenderer>();
+        }
+
+        renderer.enabled = true;
+        collider.enabled = true;
+        powerUpToUse = powerUps[Random.Range(0, powerUps.Length)];
+
+        renderer.sprite = powerUpToUse.icon;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("PICKED UP");
         if (collision.collider.CompareTag("Player"))
         {
-            if(puPickupEvent != null)
-            {
-                puPickupEvent(powerUp.name, powerUp.duration);
-            }
+            powerUpManager.PowerUpCollected(powerUpToUse.type, powerUpToUse.duration);
+            renderer.enabled = false;
+            collider.enabled = false;
         }
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        Debug.Log("HIT");
     }
 }

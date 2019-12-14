@@ -22,27 +22,19 @@ public class GameStateMananger : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private GameObject levelManager;
 
-    private bool gameOver;
 
     void Start()
     {
-        gameOver = false;
         player.SetActive(false);
         levelManager.SetActive(false);
 
         collider = GetComponent<PolygonCollider2D>();
     }
 
-    void Update()
-    {
-
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
-            gameOver = true;
             player.SetActive(false);
             if(gameOverEvent != null)
             {
@@ -63,7 +55,6 @@ public class GameStateMananger : MonoBehaviour
 
     public void RestartLevel()
     {
-        //DisableAllElements();
         player.SetActive(true);
         if(restartEvent != null)
         {

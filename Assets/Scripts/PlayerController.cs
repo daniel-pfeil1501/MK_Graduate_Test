@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] GameStateMananger gameStateMananger;
+    [SerializeField] PowerupManager powerUpManager;
 
     private Rigidbody2D rb;
     private Collider2D collider;
@@ -30,7 +31,10 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         collider = GetComponent<Collider2D>();
+
         gameStateMananger.restartEvent += ResetPlayer;
+        powerUpManager.puPickupEvent += ApplyPowerUp;
+        powerUpManager.expiredEvent += RemovePowerUp;
 
         inputVelocity = Vector2.zero;
 
@@ -109,14 +113,30 @@ public class PlayerController : MonoBehaviour
         return hit;
     }
 
-    public void ChangeClimbSpeed(float amount)
+    public void ApplyPowerUp(PowerupManager.powerUpType type)
     {
-        climbSpeed *= amount;
+        if(type == PowerupManager.powerUpType.climb)
+        {
+            climbSpeed *= 2;
+        }
+
+        if(type == PowerupManager.powerUpType.catchUp)
+        {
+            catchUpSpeed *= 2;
+        }
     }
 
-    public void ChangeCatchUpSpeed(float amount)
+    public void RemovePowerUp(PowerupManager.powerUpType type)
     {
-        catchUpSpeed *= amount;
+        if(type == PowerupManager.powerUpType.climb)
+        {
+            climbSpeed /= 2;
+        }
+
+        if (type == PowerupManager.powerUpType.catchUp)
+        {
+            catchUpSpeed /= 2;
+        }
     }
 
     public void ResetPlayer()

@@ -31,11 +31,11 @@ public class Powerup_fastCatchUp : MonoBehaviour
 
     private IEnumerator PickUp()
     {
-        controller.ChangeCatchUpSpeed(2f);
+        //controller.ChangeCatchUpSpeed(2f);
 
         yield return new WaitForSeconds(duration);
 
-        controller.ChangeCatchUpSpeed(0.5f);
+       // controller.ChangeCatchUpSpeed(0.5f);
         gameObject.SetActive(false);
     }
 }
