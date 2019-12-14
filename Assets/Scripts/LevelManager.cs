@@ -50,7 +50,6 @@ public class LevelManager : MonoBehaviour
             deltaX += horizontalMoveSpeed * Time.deltaTime;
             totalDistance += horizontalMoveSpeed * Time.deltaTime;
         }
-        Debug.Log(deltaX);
         if (deltaX >= platformLength)
         {
             float excess = deltaX - platformLength;
@@ -129,6 +128,6 @@ public class LevelManager : MonoBehaviour
     public void SendTotalDistanceRun()
     {
         gameOver = true;
-        gameStateManager.SetRunDistance((int)totalDistance);
+        FindObjectOfType<UIManager>().SetRunDistance((int)totalDistance);
     }
 }

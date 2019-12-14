@@ -23,7 +23,7 @@ public class PowerupManager : MonoBehaviour
 
     private void Start()
     {
-        FindObjectOfType<PlatformWithPowerup>().puPickupEvent += PowerUpCollected;
+        //FindObjectOfType<PlatformWithPowerup>().puPickupEvent += PowerUpCollected;
         //FindObjectOfType<Powerup>().puEndEvent += PowerUpExpired;
 
         gameStateManager.gameOverEvent += SendTotalItemsCollected;
@@ -76,7 +76,7 @@ public class PowerupManager : MonoBehaviour
 
     public void SendTotalItemsCollected()
     {
-        gameStateManager.SetItemsCollected(itemsCollected);
+        FindObjectOfType<UIManager>().SetItemsCollected(itemsCollected);
     }
 }
 

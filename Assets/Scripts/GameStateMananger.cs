@@ -11,42 +11,30 @@ public class GameStateMananger : MonoBehaviour
     public delegate void OnRestartDelegate();
     public event OnRestartDelegate restartEvent;
 
-    private bool gameOver;
+    public delegate void OnStartDelegate();
+    public event OnStartDelegate startEvent;
+
+    public delegate void OnMainMenuDelegate();
+    public event OnMainMenuDelegate mainMenuEvent;
 
     private PolygonCollider2D collider;
-    [SerializeField] private Text gameOverText;
-    [SerializeField] private Text runDistanceText;
-    [SerializeField] private Text collectedText;
-    [SerializeField] private Text climbsCollectedText;
-    [SerializeField] private Text catchUpsCollectedText;
 
-    [SerializeField] private Canvas canvas;
+    [SerializeField] private GameObject player;
+    [SerializeField] private GameObject levelManager;
 
-    private Color colour;
-    [SerializeField] private float alphaIncreaseRate;
-
+    private bool gameOver;
 
     void Start()
     {
-        DisableAllElements();
-
-        colour = gameOverText.color;
-        colour.a = 0;
+        gameOver = false;
+        player.SetActive(false);
+        levelManager.SetActive(false);
 
         collider = GetComponent<PolygonCollider2D>();
     }
 
     void Update()
     {
-        if (gameOver)
-        {
-            if (colour.a < 1)
-            {
-                colour.a += alphaIncreaseRate * Time.deltaTime;
-                gameOverText.color = colour;
-            }
-
-        }
 
     }
 
@@ -54,9 +42,8 @@ public class GameStateMananger : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            canvas.enabled = true;
-            gameOverText.enabled = true;
             gameOver = true;
+            player.SetActive(false);
             if(gameOverEvent != null)
             {
                 gameOverEvent();
@@ -64,38 +51,39 @@ public class GameStateMananger : MonoBehaviour
         }
     }
 
-    private void DisableAllElements()
+    public void StartGame()
     {
-        canvas.enabled = false;
-
-        gameOverText.enabled = false;
-        runDistanceText.enabled = false;
-        collectedText.enabled = false;
-        climbsCollectedText.enabled = false;
-        catchUpsCollectedText.enabled = false;
+        player.SetActive(true);
+        levelManager.SetActive(true);
+        if(startEvent != null)
+        {
+            startEvent();
+        }
     }
 
     public void RestartLevel()
     {
-        DisableAllElements();
+        //DisableAllElements();
+        player.SetActive(true);
         if(restartEvent != null)
         {
             restartEvent();
         }
     }
 
-    public void SetRunDistance(int dist)
+    public void MainMenu()
     {
-        runDistanceText.enabled = true;
-        runDistanceText.text = "You ran: " + dist + " meters.";
+        levelManager.SetActive(false);
+        player.SetActive(false);
+        if(mainMenuEvent != null)
+        {
+            mainMenuEvent();
+        }
+        if (restartEvent != null) { restartEvent(); }
     }
 
-    public void SetItemsCollected(int[] amount)
+    public void ExitGame()
     {
-        collectedText.enabled = true;
-        climbsCollectedText.enabled = true;
-        catchUpsCollectedText.enabled = true;
-        climbsCollectedText.text = "x " + amount[0].ToString();
-        catchUpsCollectedText.text = "x " + amount[1].ToString();
+        Application.Quit();
     }
 }
