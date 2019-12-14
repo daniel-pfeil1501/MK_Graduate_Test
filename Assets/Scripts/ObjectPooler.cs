@@ -7,38 +7,22 @@ public class ObjectPoolItem
 {
     public GameObject objectToPool;
     public int amountToPool;
-
 }
 public class ObjectPooler : MonoBehaviour
 {
-    [SerializeField] private List<ObjectPoolItem> pooledItems;
+    [SerializeField] private ObjectPoolItem[] pooledItems;
     public static ObjectPooler SharedInstance;
 
-
-
     private List<GameObject> pool;
-
-    private void Awake()
+    private string[] platformNames;
+    private void OnEnable()
     {
         SharedInstance = this;
-    }
-
-    private void Start()
-    {
-        if (pool == null)
-        {
-            GeneratePool();
-        }
+        GeneratePool();
     }
 
     public GameObject GetObjectFromPool(string itemName)
     {
-        itemName += "(Clone)";
-
-        if (pool == null)
-        {
-            GeneratePool();
-        }
         for (int i = 0; i < pool.Count; i++)
         {
             if (!pool[i].activeInHierarchy && pool[i].name == itemName)
@@ -52,15 +36,23 @@ public class ObjectPooler : MonoBehaviour
 
     private void GeneratePool()
     {
+        platformNames = new string[pooledItems.Length];
         pool = new List<GameObject>();
-        for(int i = 0;i < pooledItems.Count; i++)
+
+        for(int i = 0;i < pooledItems.Length; i++)
         {
             for(int j = 0;j < pooledItems[i].amountToPool; j++)
             {
                 GameObject o = Instantiate(pooledItems[i].objectToPool);
+                platformNames[i] = o.name;
                 o.SetActive(false);
                 pool.Add(o);
             }
         }
+    }
+
+    public string[] GetPlatformNames()
+    {
+        return platformNames;
     }
 }

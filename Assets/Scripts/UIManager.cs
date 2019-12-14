@@ -23,7 +23,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text currentDistanceText;
 
     [SerializeField] private Image climbSpeedBuffIcon;
+    [SerializeField] private Slider climbSpeedSlider;
     [SerializeField] private Image catchUpBuffIcon;
+    [SerializeField] private Slider catchUpSlider;
 
     [SerializeField] private Canvas mainMenuCanvas;
     [SerializeField] private Canvas gameOverCanvas;
@@ -36,6 +38,22 @@ public class UIManager : MonoBehaviour
     {
         score = 0;
         gameOver = false;
+
+
+        inGameCanvas.enabled = false;
+        gameOverCanvas.enabled = false;
+
+        climbSpeedBuffIcon.enabled = false;
+        climbSpeedSlider.gameObject.SetActive(false);
+        catchUpBuffIcon.enabled = false;
+        catchUpSlider.gameObject.SetActive(false);
+
+        colour = gameOverText.color;
+        colour.a = 0;
+    }
+
+    private void OnEnable()
+    {
         gameStateMananger.gameOverEvent += OnGameOver;
         gameStateMananger.startEvent += OnGameStart;
         gameStateMananger.restartEvent += OnGameRestart;
@@ -43,15 +61,17 @@ public class UIManager : MonoBehaviour
 
         powerUpManager.puPickupEvent += PowerUpCollected;
         powerUpManager.expiredEvent += PowerUpExpired;
+    }
 
-        inGameCanvas.enabled = false;
-        gameOverCanvas.enabled = false;
+    private void OnDisable()
+    {
+        gameStateMananger.gameOverEvent -= OnGameOver;
+        gameStateMananger.startEvent -= OnGameStart;
+        gameStateMananger.restartEvent -= OnGameRestart;
+        gameStateMananger.mainMenuEvent -= OnMainMenu;
 
-        climbSpeedBuffIcon.enabled = false;
-        catchUpBuffIcon.enabled = false;
-
-        colour = gameOverText.color;
-        colour.a = 0;
+        powerUpManager.puPickupEvent -= PowerUpCollected;
+        powerUpManager.expiredEvent -= PowerUpExpired;
     }
 
     private void Update()
@@ -73,6 +93,11 @@ public class UIManager : MonoBehaviour
         gameOver = true;
         currentDistanceText.enabled = false;
         gameOverCanvas.enabled = true;
+
+        catchUpBuffIcon.enabled = false;
+        climbSpeedBuffIcon.enabled = false;
+        climbSpeedSlider.gameObject.SetActive(false);
+        catchUpSlider.gameObject.SetActive(false);
     }
 
     public void OnGameStart()
@@ -91,6 +116,9 @@ public class UIManager : MonoBehaviour
         currentDistanceText.enabled = true; ;
         highScoreText.enabled = false;
         gameOverCanvas.enabled = false;
+
+        climbSpeedSlider.gameObject.SetActive(false);
+        catchUpSlider.gameObject.SetActive(false);
     }
 
     public void OnMainMenu()
@@ -138,11 +166,13 @@ public class UIManager : MonoBehaviour
     {
         if(type == PowerupManager.powerUpType.climb)
         {
+            climbSpeedSlider.gameObject.SetActive(true);
             climbSpeedBuffIcon.enabled = true;
         }
 
         if(type == PowerupManager.powerUpType.catchUp)
         {
+            catchUpSlider.gameObject.SetActive(true);
             catchUpBuffIcon.enabled = true;
         }
     }
@@ -151,11 +181,13 @@ public class UIManager : MonoBehaviour
     {
         if (type == PowerupManager.powerUpType.climb)
         {
+            climbSpeedSlider.gameObject.SetActive(false);
             climbSpeedBuffIcon.enabled = false;
         }
 
         if (type == PowerupManager.powerUpType.catchUp)
         {
+            catchUpSlider.gameObject.SetActive(false);
             catchUpBuffIcon.enabled = false;
         }
     }

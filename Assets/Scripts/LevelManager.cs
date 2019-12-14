@@ -12,7 +12,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] GameStateMananger gameStateManager;
     [SerializeField] Text currentDistanceText;
 
-    private List<GameObject> platformList;
+    private List<GameObject> activePlatforms;
     private GameObject initialPlatform;
     private Vector3 platformSpawnLocation;
 
@@ -27,60 +27,84 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private int maxActivePlatforms;
     [SerializeField] private int numberOfInitialPlatforms;
 
-    [SerializeField] private List<GameObject> platformsToUse;
-    private Dictionary<int, string> platformDictionary;
+    private string[] platformLookup;
 
     private void Start()
     {
+        platformLength = 0;
 
-        gameStateManager.gameOverEvent += SendTotalDistanceRun;
-        gameStateManager.restartEvent += RestartLevel;
 
         objectPooler = ObjectPooler.SharedInstance;
-        platformList = new List<GameObject>();
-        GenerateDictionary();
+        activePlatforms = new List<GameObject>();
+        platformLookup = objectPooler.GetPlatformNames();
+
         platformSpawnLocation = new Vector3(0, -2, 0);
 
         StartLevel();
     }
 
+    private void OnEnable()
+    {
+        gameStateManager.startEvent += RestartLevel;
+        gameStateManager.gameOverEvent += SendTotalDistanceRun;
+        gameStateManager.restartEvent += RestartLevel;
+    }
+
+    private void OnDisable()
+    {
+        gameStateManager.startEvent -= RestartLevel;
+        gameStateManager.gameOverEvent -= SendTotalDistanceRun;
+        gameStateManager.restartEvent -= RestartLevel;
+    }
+
     private void Update()
     {
+        TrackDistance();
 
-        if(!gameOver)
+        if (deltaX >= platformLength)
+        {
+            RequestNewPlatform();
+        }
+
+        //Remove the oldest platform when the total exceeds the limit set.
+        if (activePlatforms.Count > maxActivePlatforms)
+        {
+            activePlatforms[0].SetActive(false);
+            activePlatforms.RemoveAt(0);
+        }
+    }
+
+    private void FixedUpdate() //Move all platforms active in the level.
+    {
+        if (!gameOver)
+        {
+            for (int i = 0; i < activePlatforms.Count; i++)
+            {
+                activePlatforms[i].transform.Translate(new Vector3(-horizontalMoveSpeed * Time.deltaTime, 0, 0));
+            }
+        }
+
+    }
+
+    private void TrackDistance() //Track the distance moved for platform spawning and score.
+    {
+        if (!gameOver)
         {
             deltaX += horizontalMoveSpeed * Time.deltaTime;
             totalDistance += horizontalMoveSpeed * Time.deltaTime;
             currentDistanceText.text = string.Format("Distance: {0,4}", (int)totalDistance);
         }
-        if (deltaX >= platformLength)
-        {
-            float excess = deltaX - platformLength;
-
-            GameObject newPlatform = objectPooler.GetObjectFromPool(platformDictionary[Random.Range(0, platformsToUse.Count)]);
-            newPlatform.transform.position = platformList[platformList.Count - 1].transform.position + (Vector3.right * (platformLength + excess));
-            newPlatform.SetActive(true);
-            platformList.Add(newPlatform);
-            deltaX = 0;
-        }
-
-        if (platformList.Count > maxActivePlatforms)
-        {
-            platformList[0].SetActive(false);
-            platformList.RemoveAt(0);
-        }
     }
 
-    private void FixedUpdate()
+    private void RequestNewPlatform()
     {
-        if (!gameOver)
-        {
-            for (int i = 0; i < platformList.Count; i++)
-            {
-                platformList[i].transform.Translate(new Vector3(-horizontalMoveSpeed * Time.deltaTime, 0, 0));
-            }
-        }
+        float excess = deltaX - platformLength;
+        deltaX = 0;
 
+        GameObject newPlatform = objectPooler.GetObjectFromPool(platformLookup[Random.Range(0, platformLookup.Length)]);
+        newPlatform.transform.position = activePlatforms[activePlatforms.Count - 1].transform.position + (Vector3.right * (platformLength + excess));
+        newPlatform.SetActive(true);
+        activePlatforms.Add(newPlatform);
     }
 
 
@@ -90,42 +114,31 @@ public class LevelManager : MonoBehaviour
         deltaX = 0;
         totalDistance = 0;
 
-        initialPlatform = objectPooler.GetObjectFromPool("basic_platform");
-        initialPlatform.transform.position = platformSpawnLocation;
-        initialPlatform.SetActive(true);
-        platformLength = initialPlatform.GetComponent<Collider2D>().bounds.size.x;
-
-        platformList.Add(initialPlatform);
-
-        for (int i = 1; i < numberOfInitialPlatforms; i++)
+        for (int i = 0; i < numberOfInitialPlatforms; i++)
         {
-            initialPlatform = objectPooler.GetObjectFromPool("basic_platform");
+            initialPlatform = objectPooler.GetObjectFromPool(platformLookup[0]);
             initialPlatform.transform.position = platformSpawnLocation + Vector3.right * i * (platformLength - 0.05f);
             initialPlatform.SetActive(true);
-            platformList.Add(initialPlatform);
+
+            if (platformLength == 0)
+            {
+                platformLength = initialPlatform.GetComponent<Collider2D>().bounds.size.x;
+            }
+
+            activePlatforms.Add(initialPlatform);
         }
     }
 
     public void RestartLevel()
     {
         totalDistance = 0;
-        foreach(GameObject platform in platformList)
+        foreach(GameObject platform in activePlatforms)
         {
             platform.SetActive(false);
         }
-        platformList.Clear();
+        activePlatforms.Clear();
         StartLevel();
         
-    }
-
-    private void GenerateDictionary()
-    {
-        platformDictionary = new Dictionary<int, string>();
-
-        for(int i = 0;i< platformsToUse.Count; i++)
-        {
-            platformDictionary.Add(i, platformsToUse[i].name);
-        }
     }
 
     public void SendTotalDistanceRun()

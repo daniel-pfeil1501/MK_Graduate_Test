@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PowerupManager : MonoBehaviour
 {
@@ -17,6 +18,11 @@ public class PowerupManager : MonoBehaviour
 
     [SerializeField] private GameStateMananger gameStateManager;
 
+    [SerializeField] private Slider climbProgress;
+    [SerializeField] private Slider catchUpProgress;
+
+    [SerializeField] private float maxDuration;
+
     private float[] powerUpTimers;
     private bool[] activePowerUps;
     private int[] itemsCollected;
@@ -27,8 +33,16 @@ public class PowerupManager : MonoBehaviour
         itemsCollected = new int[length];
         powerUpTimers = new float[length];
         activePowerUps = new bool[length];
+    }
 
+    private void OnEnable()
+    {
         gameStateManager.gameOverEvent += SendTotalItemsCollected;
+    }
+
+    private void OnDisable()
+    {
+        gameStateManager.gameOverEvent -= SendTotalItemsCollected;
     }
 
     private void Update()
@@ -37,8 +51,9 @@ public class PowerupManager : MonoBehaviour
         {
             if(powerUpTimers[i] > 0)
             {
+                UpdateProgressBars();
                 powerUpTimers[i] -= Time.deltaTime;
-                Debug.Log(powerUpTimers[i]);
+
             }
             else if (activePowerUps[i])
             {
@@ -49,30 +64,53 @@ public class PowerupManager : MonoBehaviour
         }
     }
 
+
     public void PowerUpCollected(powerUpType type, float duration)
     {
-        itemsCollected[(int)type]++;
-        activePowerUps[(int)type] = true;
-        powerUpTimers[(int)type] += duration;
+        int i = (int)type;
 
-        if(puPickupEvent != null)
+        itemsCollected[i]++;
+        powerUpTimers[i] += duration;
+
+
+        if(powerUpTimers[i] > maxDuration) { powerUpTimers[i] = maxDuration; }
+
+        if(puPickupEvent != null && !activePowerUps[i])
         {
+            activePowerUps[i] = true;
             puPickupEvent(type);
         }
     }
 
     public void PowerUpExpired(powerUpType type)
     {
-        Debug.Log(name + " Expired");
         if(expiredEvent != null)
         {
             expiredEvent(type);
         }
     }
 
+    private void UpdateProgressBars()
+    {
+        climbProgress.value = powerUpTimers[(int)powerUpType.climb] / maxDuration;
+
+        catchUpProgress.value = powerUpTimers[(int)powerUpType.catchUp] / maxDuration;
+
+    }
+
     public void SendTotalItemsCollected()
     {
         FindObjectOfType<UIManager>().SetItemsCollected(itemsCollected);
+
+        catchUpProgress.value = 0;
+        climbProgress.value = 0;
+
+        for (int i = 0; i < itemsCollected.Length; i++)
+        {
+            itemsCollected[i] = 0;
+            powerUpTimers[i] = 0;
+            activePowerUps[i] = false; 
+        }
     }
 }
 

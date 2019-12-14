@@ -13,33 +13,44 @@ public class PlatformWithPowerup : MonoBehaviour
 
     private PowerupManager powerUpManager;
 
+    private bool collected;
+
     private void Start()
     {
         powerUpManager = FindObjectOfType<PowerupManager>();
         renderer = powerUpSpawn.GetComponent<SpriteRenderer>();
         powerUpToUse = powerUps[Random.Range(0, powerUps.Length)];
     }
-    private void Awake()
+
+    private void OnEnable()
     {
-        if(renderer == null)
+        if (renderer == null)
         {
             renderer = powerUpSpawn.GetComponent<SpriteRenderer>();
         }
 
+        powerUpToUse = powerUps[Random.Range(0, powerUps.Length)];
         renderer.enabled = true;
         collider.enabled = true;
-        powerUpToUse = powerUps[Random.Range(0, powerUps.Length)];
+        collected = false;
 
         renderer.sprite = powerUpToUse.icon;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void Awake()
     {
-        if (collision.collider.CompareTag("Player"))
+
+
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+
+        if (collision.CompareTag("Player") && !collected)
         {
+            collected = true;
             powerUpManager.PowerUpCollected(powerUpToUse.type, powerUpToUse.duration);
             renderer.enabled = false;
-            collider.enabled = false;
         }
     }
 }

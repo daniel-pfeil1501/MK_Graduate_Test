@@ -16,7 +16,10 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private float catchUpSpeed;
     [SerializeField] private float climbSpeed;
+
     private float gravityScale;
+
+    PlayerStats playerStats;
 
     [SerializeField] LayerMask layerMask;
     [SerializeField, Range(2,6)] int numberOfRays;
@@ -32,18 +35,27 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         collider = GetComponent<Collider2D>();
 
-        gameStateMananger.restartEvent += ResetPlayer;
-        powerUpManager.puPickupEvent += ApplyPowerUp;
-        powerUpManager.expiredEvent += RemovePowerUp;
-
         inputVelocity = Vector2.zero;
 
         rayLength = collider.bounds.size.x + 0.02f;
         raySpacing = (collider.bounds.size.y - rayInsetAmount * 2) / (numberOfRays - 1);
 
         gravityScale = rb.gravityScale;
+        playerStats = new PlayerStats(climbSpeed, catchUpSpeed);
+    }
 
-        
+    private void OnEnable()
+    {
+        gameStateMananger.restartEvent += ResetPlayer;
+        powerUpManager.puPickupEvent += ApplyPowerUp;
+        powerUpManager.expiredEvent += RemovePowerUp;
+    }
+
+    private void OnDisable()
+    {
+        gameStateMananger.restartEvent -= ResetPlayer;
+        powerUpManager.puPickupEvent -= ApplyPowerUp;
+        powerUpManager.expiredEvent -= RemovePowerUp;
     }
 
     public void AddInputToVelocity(Vector2 input)
@@ -117,12 +129,12 @@ public class PlayerController : MonoBehaviour
     {
         if(type == PowerupManager.powerUpType.climb)
         {
-            climbSpeed *= 2;
+            climbSpeed = playerStats.buffedClimbSpeed;
         }
 
         if(type == PowerupManager.powerUpType.catchUp)
         {
-            catchUpSpeed *= 2;
+            catchUpSpeed = playerStats.buffedCatchUpSpeed;
         }
     }
 
@@ -130,17 +142,38 @@ public class PlayerController : MonoBehaviour
     {
         if(type == PowerupManager.powerUpType.climb)
         {
-            climbSpeed /= 2;
+            climbSpeed = playerStats.defaultClimbSpeed;
         }
 
         if (type == PowerupManager.powerUpType.catchUp)
         {
-            catchUpSpeed /= 2;
+            catchUpSpeed = playerStats.defaultClimbSpeed;
         }
     }
 
     public void ResetPlayer()
     {
+        catchUpSpeed = playerStats.defaultCatchUpSpeed;
+        climbSpeed = playerStats.defaultClimbSpeed;
+
         gameObject.transform.position = new Vector3(-8, 0, 0);
+
+    }
+
+    private struct PlayerStats
+    {
+        public float defaultClimbSpeed { get; }
+        public float buffedClimbSpeed { get; }
+        public float buffedCatchUpSpeed { get; }
+        public float defaultCatchUpSpeed { get; }
+
+        public PlayerStats(float climbSpeed, float catchUpSpeed)
+        {
+            defaultClimbSpeed = climbSpeed;
+            buffedClimbSpeed = climbSpeed * 2;
+
+            defaultCatchUpSpeed = catchUpSpeed;
+            buffedCatchUpSpeed = catchUpSpeed * 2;
+        }    
     }
 }

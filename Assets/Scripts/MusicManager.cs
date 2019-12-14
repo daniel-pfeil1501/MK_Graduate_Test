@@ -9,10 +9,16 @@ public class MusicManager : MonoBehaviour
     [SerializeField] private AudioSource mainMenuMusic;
     [SerializeField] private AudioSource inGameMusic;
 
-    private void Start()
+    private void OnEnable()
     {
         gameStateManager.mainMenuEvent += OnMainMenu;
         gameStateManager.startEvent += OnGameStart;
+    }
+
+    private void OnDisable()
+    {
+        gameStateManager.mainMenuEvent -= OnMainMenu;
+        gameStateManager.startEvent -= OnGameStart;
     }
 
     public void OnMainMenu()
