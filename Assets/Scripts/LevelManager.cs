@@ -4,20 +4,23 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
-    private float score;
+    private float totalDistance;
 
     private ObjectPooler objectPooler;
     private PowerupManager powerupManager;
+    [SerializeField] GameStateMananger gameStateManager;
 
     private List<GameObject> platformList;
+    private GameObject initialPlatform;
     private Vector3 platformSpawnLocation;
 
     private float deltaX;
     private float platformLength;
 
+    bool gameOver = false;
+
 
     [SerializeField] private float horizontalMoveSpeed;
-    private float defaultMoveSpeed;
 
     [SerializeField] private int maxActivePlatforms;
     [SerializeField] private int numberOfInitialPlatforms;
@@ -27,39 +30,27 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
-        objectPooler = ObjectPooler.SharedInstance;
 
+        gameStateManager.gameOverEvent += SendTotalDistanceRun;
+        gameStateManager.restartEvent += RestartLevel;
+
+        objectPooler = ObjectPooler.SharedInstance;
         platformList = new List<GameObject>();
         GenerateDictionary();
-
-
-
         platformSpawnLocation = new Vector3(0, -2, 0);
-        deltaX = 0;
-        defaultMoveSpeed = horizontalMoveSpeed;
 
-        GameObject initialPlatform = objectPooler.GetObjectFromPool("basic_platform");
-        initialPlatform.transform.position = platformSpawnLocation;
-        initialPlatform.SetActive(true);
-        platformLength = initialPlatform.transform.localScale.x;
-
-        platformList.Add(initialPlatform);
-
-        for (int i = 1; i < numberOfInitialPlatforms; i++)
-        {
-            initialPlatform = objectPooler.GetObjectFromPool("basic_platform");
-            initialPlatform.transform.position = platformSpawnLocation + Vector3.right * i * (platformLength - 0.05f);
-            initialPlatform.SetActive(true);
-            platformList.Add(initialPlatform);
-        }
+        StartLevel();
     }
 
     private void Update()
     {
 
-        deltaX += horizontalMoveSpeed * Time.deltaTime;
-        score += horizontalMoveSpeed * Time.deltaTime;
-
+        if(!gameOver)
+        {
+            deltaX += horizontalMoveSpeed * Time.deltaTime;
+            totalDistance += horizontalMoveSpeed * Time.deltaTime;
+        }
+        Debug.Log(deltaX);
         if (deltaX >= platformLength)
         {
             float excess = deltaX - platformLength;
@@ -80,10 +71,49 @@ public class LevelManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        for (int i = 0; i < platformList.Count; i++)
+        if (!gameOver)
         {
-            platformList[i].transform.Translate(new Vector3(-horizontalMoveSpeed * Time.deltaTime, 0, 0));
+            for (int i = 0; i < platformList.Count; i++)
+            {
+                platformList[i].transform.Translate(new Vector3(-horizontalMoveSpeed * Time.deltaTime, 0, 0));
+            }
         }
+
+    }
+
+
+    private void StartLevel()
+    {
+        gameOver = false;
+        deltaX = 0;
+        totalDistance = 0;
+
+        initialPlatform = objectPooler.GetObjectFromPool("basic_platform");
+        initialPlatform.transform.position = platformSpawnLocation;
+        initialPlatform.SetActive(true);
+        platformLength = initialPlatform.GetComponent<Collider2D>().bounds.size.x;
+
+        platformList.Add(initialPlatform);
+
+        for (int i = 1; i < numberOfInitialPlatforms; i++)
+        {
+            initialPlatform = objectPooler.GetObjectFromPool("basic_platform");
+            initialPlatform.transform.position = platformSpawnLocation + Vector3.right * i * (platformLength - 0.05f);
+            initialPlatform.SetActive(true);
+            platformList.Add(initialPlatform);
+        }
+    }
+
+    public void RestartLevel()
+    {
+        totalDistance = 0;
+        foreach(GameObject platform in platformList)
+        {
+            platform.SetActive(false);
+        }
+        platformList.Clear();
+        StartLevel();
+        
     }
 
     private void GenerateDictionary()
@@ -96,13 +126,9 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    public void changeLevelMoveSpeed(float speed)
+    public void SendTotalDistanceRun()
     {
-        horizontalMoveSpeed = speed;
-    }
-
-    public float GetCurentSpeed()
-    {
-        return horizontalMoveSpeed;
+        gameOver = true;
+        gameStateManager.SetRunDistance((int)totalDistance);
     }
 }

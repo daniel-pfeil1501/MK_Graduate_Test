@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - outOfBounds
+  - powerup_spawn
   layers:
   - Default
   - TransparentFX

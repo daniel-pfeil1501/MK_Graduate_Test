@@ -39,7 +39,7 @@ public class PlayerInput : MonoBehaviour
         canJump = Physics2D.Raycast(transform.position, Vector3.down, rayDistanceToGround, layerMask);
         Debug.DrawRay(transform.position, Vector3.down, Color.red);
 
-        if (canJump && Mathf.Sign(controller.GetCurrentVelocity().y) < 0)
+        if (canJump && Mathf.Sign(controller.GetCurrentVelocity().y) <= 0)
         {
             animator.SetBool("isJumping", false);
         }

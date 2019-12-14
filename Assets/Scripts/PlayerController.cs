@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] GameStateMananger gameStateMananger;
+
     private Rigidbody2D rb;
     private Collider2D collider;
 
@@ -28,6 +30,7 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         collider = GetComponent<Collider2D>();
+        gameStateMananger.restartEvent += ResetPlayer;
 
         inputVelocity = Vector2.zero;
 
@@ -87,7 +90,7 @@ public class PlayerController : MonoBehaviour
 
     private void Catchup()
     {
-        if(transform.position.x < 0)
+        if(transform.position.x < -1)
         {
             transform.Translate(Vector2.right * catchUpSpeed * Time.deltaTime);
         }
@@ -114,5 +117,10 @@ public class PlayerController : MonoBehaviour
     public void ChangeCatchUpSpeed(float amount)
     {
         catchUpSpeed *= amount;
+    }
+
+    public void ResetPlayer()
+    {
+        gameObject.transform.position = new Vector3(-8, 0, 0);
     }
 }
