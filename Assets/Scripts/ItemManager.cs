@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PowerupManager : MonoBehaviour
+public class ItemManager : MonoBehaviour
 {
-    public enum powerUpType { climb, catchUp, NumberOfTypes} //final enum is used to detect the number of available power-ups
+    public enum itemType { climb, catchUp, bomb, NumberOfTypes} //final enum is used to detect the number of available items
 
-    public delegate void PickupPowerupDelegate(powerUpType type);
-    public event PickupPowerupDelegate puPickupEvent;
+    public delegate void PickupItemDelegate(itemType type);
+    public event PickupItemDelegate puPickupEvent;
 
-    public delegate void PowerUpExpiredDelegate(powerUpType type);
-    public event PowerUpExpiredDelegate expiredEvent;
+    public delegate void ItemExpiredDelegate(itemType type);
+    public event ItemExpiredDelegate expiredEvent;
 
-    public delegate void EndPowerupDelegate(powerUpType type);
+    public delegate void EndPowerupDelegate(itemType type);
     public event EndPowerupDelegate puEndEvent;
 
     [SerializeField] private GameStateMananger gameStateManager;
@@ -29,7 +29,7 @@ public class PowerupManager : MonoBehaviour
 
     private void Start()
     {
-        int length = (int)powerUpType.NumberOfTypes;
+        int length = (int)itemType.NumberOfTypes;
         itemsCollected = new int[length];
         powerUpTimers = new float[length];
         activePowerUps = new bool[length];
@@ -59,13 +59,13 @@ public class PowerupManager : MonoBehaviour
             {
                 powerUpTimers[i] = 0;
                 activePowerUps[i] = false;
-                PowerUpExpired((powerUpType)i);
+                PowerUpExpired((itemType)i);
             }
         }
     }
 
 
-    public void PowerUpCollected(powerUpType type, float duration)
+    public void ItemCollected(itemType type, float duration)
     {
         int i = (int)type;
 
@@ -82,7 +82,7 @@ public class PowerupManager : MonoBehaviour
         }
     }
 
-    public void PowerUpExpired(powerUpType type)
+    public void PowerUpExpired(itemType type)
     {
         if(expiredEvent != null)
         {
@@ -92,9 +92,9 @@ public class PowerupManager : MonoBehaviour
 
     private void UpdateProgressBars()
     {
-        climbProgress.value = powerUpTimers[(int)powerUpType.climb] / maxDuration;
+        climbProgress.value = powerUpTimers[(int)itemType.climb] / maxDuration;
 
-        catchUpProgress.value = powerUpTimers[(int)powerUpType.catchUp] / maxDuration;
+        catchUpProgress.value = powerUpTimers[(int)itemType.catchUp] / maxDuration;
 
     }
 

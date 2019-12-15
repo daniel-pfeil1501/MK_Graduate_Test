@@ -21,6 +21,7 @@ public class GameStateMananger : MonoBehaviour
 
     [SerializeField] private GameObject player;
     [SerializeField] private GameObject levelManager;
+    [SerializeField] private ItemManager itemManager;
 
 
     void Start()
@@ -35,28 +36,45 @@ public class GameStateMananger : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            player.SetActive(false);
-            if(gameOverEvent != null)
-            {
-                gameOverEvent();
-            }
+            GameOver();
         }
+    }
+
+    private void OnEnable()
+    {
+        itemManager.puPickupEvent += ItemPickup;
+    }
+
+    private void OnDisable()
+    {
+        itemManager.puPickupEvent -= ItemPickup;
     }
 
     public void StartGame()
     {
         player.SetActive(true);
         levelManager.SetActive(true);
-        if(startEvent != null)
+        player.GetComponent<SpriteRenderer>().enabled = true;
+        if (startEvent != null)
         {
             startEvent();
         }
     }
 
+    public void GameOver()
+    {
+        player.GetComponent<PlayerController>().PlayDeathParticle();
+        player.GetComponent<SpriteRenderer>().enabled = false;
+        if (gameOverEvent != null)
+        {
+            gameOverEvent();
+        }
+    }
+
     public void RestartLevel()
     {
-        player.SetActive(true);
-        if(restartEvent != null)
+        player.GetComponent<SpriteRenderer>().enabled = true;
+        if (restartEvent != null)
         {
             restartEvent();
         }
@@ -76,5 +94,13 @@ public class GameStateMananger : MonoBehaviour
     public void ExitGame()
     {
         Application.Quit();
+    }
+
+    public void ItemPickup(ItemManager.itemType type)
+    {
+        if(type == ItemManager.itemType.bomb)
+        {
+            GameOver();
+        }
     }
 }

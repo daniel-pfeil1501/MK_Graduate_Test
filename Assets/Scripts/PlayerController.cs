@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] GameStateMananger gameStateMananger;
-    [SerializeField] PowerupManager powerUpManager;
+    [SerializeField] ItemManager powerUpManager;
 
     private Rigidbody2D rb;
     private Collider2D collider;
@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float catchUpSpeed;
     [SerializeField] private float climbSpeed;
 
-    private float gravityScale;
+    private float defaultGravity;
 
     PlayerStats playerStats;
 
@@ -40,13 +40,14 @@ public class PlayerController : MonoBehaviour
         rayLength = collider.bounds.size.x + 0.02f;
         raySpacing = (collider.bounds.size.y - rayInsetAmount * 2) / (numberOfRays - 1);
 
-        gravityScale = rb.gravityScale;
+        defaultGravity = rb.gravityScale;
         playerStats = new PlayerStats(climbSpeed, catchUpSpeed);
     }
 
     private void OnEnable()
     {
         gameStateMananger.restartEvent += ResetPlayer;
+        gameStateMananger.startEvent += ResetPlayer;
         powerUpManager.puPickupEvent += ApplyPowerUp;
         powerUpManager.expiredEvent += RemovePowerUp;
     }
@@ -54,6 +55,7 @@ public class PlayerController : MonoBehaviour
     private void OnDisable()
     {
         gameStateMananger.restartEvent -= ResetPlayer;
+        gameStateMananger.startEvent -= ResetPlayer;
         powerUpManager.puPickupEvent -= ApplyPowerUp;
         powerUpManager.expiredEvent -= RemovePowerUp;
     }
@@ -81,7 +83,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            rb.gravityScale = gravityScale;
+            rb.gravityScale = defaultGravity;
         }
 
 
@@ -125,27 +127,27 @@ public class PlayerController : MonoBehaviour
         return hit;
     }
 
-    public void ApplyPowerUp(PowerupManager.powerUpType type)
+    public void ApplyPowerUp(ItemManager.itemType type)
     {
-        if(type == PowerupManager.powerUpType.climb)
+        if(type == ItemManager.itemType.climb)
         {
             climbSpeed = playerStats.buffedClimbSpeed;
         }
 
-        if(type == PowerupManager.powerUpType.catchUp)
+        if(type == ItemManager.itemType.catchUp)
         {
             catchUpSpeed = playerStats.buffedCatchUpSpeed;
         }
     }
 
-    public void RemovePowerUp(PowerupManager.powerUpType type)
+    public void RemovePowerUp(ItemManager.itemType type)
     {
-        if(type == PowerupManager.powerUpType.climb)
+        if(type == ItemManager.itemType.climb)
         {
             climbSpeed = playerStats.defaultClimbSpeed;
         }
 
-        if (type == PowerupManager.powerUpType.catchUp)
+        if (type == ItemManager.itemType.catchUp)
         {
             catchUpSpeed = playerStats.defaultClimbSpeed;
         }
@@ -156,8 +158,14 @@ public class PlayerController : MonoBehaviour
         catchUpSpeed = playerStats.defaultCatchUpSpeed;
         climbSpeed = playerStats.defaultClimbSpeed;
 
-        gameObject.transform.position = new Vector3(-8, 0, 0);
+        rb.velocity = Vector2.zero;
 
+        gameObject.transform.position = new Vector3(-8, 0, 0);
+    }
+
+    public void PlayDeathParticle()
+    {
+        GetComponent<ParticleSystem>().Play();
     }
 
     private struct PlayerStats

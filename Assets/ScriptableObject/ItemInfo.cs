@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "new power up", menuName = "Power Up")]
-public class PowerUpInfo : ScriptableObject
+public class ItemInfo : ScriptableObject
 {
-    public PowerupManager.powerUpType type;
+    public ItemManager.itemType type;
     public new string name;
     public float duration;
 

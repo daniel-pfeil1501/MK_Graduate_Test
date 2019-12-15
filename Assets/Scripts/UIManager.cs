@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private GameStateMananger gameStateMananger;
-    [SerializeField] private PowerupManager powerUpManager;
+    [SerializeField] private ItemManager powerUpManager;
 
     private Color colour;
     [SerializeField] private float alphaIncreaseRate;
@@ -162,30 +162,30 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void PowerUpCollected(PowerupManager.powerUpType type)
+    public void PowerUpCollected(ItemManager.itemType type)
     {
-        if(type == PowerupManager.powerUpType.climb)
+        if(type == ItemManager.itemType.climb)
         {
             climbSpeedSlider.gameObject.SetActive(true);
             climbSpeedBuffIcon.enabled = true;
         }
 
-        if(type == PowerupManager.powerUpType.catchUp)
+        if(type == ItemManager.itemType.catchUp)
         {
             catchUpSlider.gameObject.SetActive(true);
             catchUpBuffIcon.enabled = true;
         }
     }
 
-    public void PowerUpExpired(PowerupManager.powerUpType type)
+    public void PowerUpExpired(ItemManager.itemType type)
     {
-        if (type == PowerupManager.powerUpType.climb)
+        if (type == ItemManager.itemType.climb)
         {
             climbSpeedSlider.gameObject.SetActive(false);
             climbSpeedBuffIcon.enabled = false;
         }
 
-        if (type == PowerupManager.powerUpType.catchUp)
+        if (type == ItemManager.itemType.catchUp)
         {
             catchUpSlider.gameObject.SetActive(false);
             catchUpBuffIcon.enabled = false;

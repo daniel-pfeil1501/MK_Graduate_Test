@@ -2,24 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlatformWithPowerup : MonoBehaviour
+public class PlatformWithItem : MonoBehaviour
 {
-    [SerializeField] private PowerUpInfo[] powerUps;
+    [SerializeField] private ItemInfo[] items;
     [SerializeField] private GameObject powerUpSpawn;
     [SerializeField] private Collider2D collider;
+    [SerializeField] private AudioSource powerUpEffect;
+    [SerializeField] private AudioSource bombEffect;
 
-    private PowerUpInfo powerUpToUse;
+    private ItemInfo itemToUse;
     private SpriteRenderer renderer;
 
-    private PowerupManager powerUpManager;
+    private ItemManager itemManager;
 
     private bool collected;
 
     private void Start()
     {
-        powerUpManager = FindObjectOfType<PowerupManager>();
+        itemManager = FindObjectOfType<ItemManager>();
         renderer = powerUpSpawn.GetComponent<SpriteRenderer>();
-        powerUpToUse = powerUps[Random.Range(0, powerUps.Length)];
+        //itemToUse = items[Random.Range(0, items.Length)];
     }
 
     private void OnEnable()
@@ -29,18 +31,12 @@ public class PlatformWithPowerup : MonoBehaviour
             renderer = powerUpSpawn.GetComponent<SpriteRenderer>();
         }
 
-        powerUpToUse = powerUps[Random.Range(0, powerUps.Length)];
+        itemToUse = items[Random.Range(0, items.Length)];
         renderer.enabled = true;
         collider.enabled = true;
         collected = false;
 
-        renderer.sprite = powerUpToUse.icon;
-    }
-
-    private void Awake()
-    {
-
-
+        renderer.sprite = itemToUse.icon;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -48,9 +44,19 @@ public class PlatformWithPowerup : MonoBehaviour
 
         if (collision.CompareTag("Player") && !collected)
         {
+
+            if(itemToUse.type != ItemManager.itemType.bomb)
+            {
+                powerUpEffect.Play();
+            }
+            else
+            {
+                bombEffect.Play();
+            }
+
             collected = true;
-            powerUpManager.PowerUpCollected(powerUpToUse.type, powerUpToUse.duration);
             renderer.enabled = false;
+            itemManager.ItemCollected(itemToUse.type, itemToUse.duration);
         }
     }
 }
