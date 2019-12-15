@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
+
 public class ObjectPoolItem
 {
     public GameObject objectToPool;
@@ -21,6 +22,7 @@ public class ObjectPooler : MonoBehaviour
         GeneratePool();
     }
 
+    //Retrives and returns an item from the pool with the name given.
     public GameObject GetObjectFromPool(string itemName)
     {
         for (int i = 0; i < pool.Count; i++)
@@ -34,6 +36,7 @@ public class ObjectPooler : MonoBehaviour
         return null;
     }
 
+    //Generates a pool of all supplied platforms.
     private void GeneratePool()
     {
         platformNames = new string[pooledItems.Length];

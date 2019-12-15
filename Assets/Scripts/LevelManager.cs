@@ -1,33 +1,31 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour
 {
     private float totalDistance;
 
-    private ObjectPooler objectPooler;
+    private ObjectPooler objectPooler;                          //Mananges a pool of platforms for the game to request and use.
 
-    [SerializeField] GameStateMananger gameStateManager;
-    [SerializeField] Text currentDistanceText;
+    [SerializeField] GameStateMananger gameStateManager;        //This is subscribed to events to do with the current gamestate.
 
-    private List<GameObject> activePlatforms;
-    private GameObject initialPlatform;
-    private Vector3 platformSpawnLocation;
+    private List<GameObject> activePlatforms;                   //A list of all the currently active platforms in the level.
+    private GameObject initialPlatform;                         //The platform that will be used at the start of the level.
+    private Vector3 platformSpawnLocation;                      //The location that all new platforms will spawn at.
 
-    private float deltaX;
-    private float platformLength;
+    private float deltaX;                                       //Used to determine when a new platform is needed.
+    private float platformLength;                               //Used to correctly space the platforms.
 
     bool gameOver = false;
 
 
-    [SerializeField] private float horizontalMoveSpeed;
+    [SerializeField] private float horizontalMoveSpeed;         //Sets the speed at which the level will move.
 
-    [SerializeField] private int maxActivePlatforms;
-    [SerializeField] private int numberOfInitialPlatforms;
+    [SerializeField] private int maxActivePlatforms;            //The maximum allowed active platforms.
+    [SerializeField] private int numberOfInitialPlatforms;      //number of platforms to spawn at the start of the game.
 
-    private string[] platformLookup;
+    private string[] platformLookup;                            //Used to find the names of each platform to request them from the pool.
 
     private void Start()
     {
@@ -74,7 +72,8 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private void FixedUpdate() //Move all platforms active in the level.
+    //Move all platforms active in the level.
+    private void FixedUpdate()
     {
         if (!gameOver)
         {
@@ -86,16 +85,17 @@ public class LevelManager : MonoBehaviour
 
     }
 
-    private void TrackDistance() //Track the distance moved for platform spawning and score.
+    //Track the distance moved for platform spawning and score.
+    private void TrackDistance()
     {
         if (!gameOver)
         {
             deltaX += horizontalMoveSpeed * Time.deltaTime;
             totalDistance += horizontalMoveSpeed * Time.deltaTime;
-            currentDistanceText.text = string.Format("Distance: {0,4}", (int)totalDistance);
         }
     }
 
+    //Requests a new platform from the pool and adds it to the level.
     private void RequestNewPlatform()
     {
         float excess = deltaX - platformLength;
@@ -107,7 +107,7 @@ public class LevelManager : MonoBehaviour
         activePlatforms.Add(newPlatform);
     }
 
-
+    //Sets the starting state of the level.
     private void StartLevel()
     {
         gameOver = false;
@@ -129,6 +129,7 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    //Clears the current level and resets to the start state.
     public void RestartLevel()
     {
         totalDistance = 0;
@@ -145,5 +146,10 @@ public class LevelManager : MonoBehaviour
     {
         gameOver = true;
         FindObjectOfType<UIManager>().SetRunDistance((int)totalDistance);
+    }
+
+    public int GetCurrentDistance()
+    {
+        return (int)totalDistance;
     }
 }

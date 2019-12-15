@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class PlatformWithItem : MonoBehaviour
 {
-    [SerializeField] private ItemInfo[] items;
-    [SerializeField] private GameObject powerUpSpawn;
+    [SerializeField] private ItemInfo[] items;                              //A list containing scriptable objects of items available.
+    [SerializeField] private GameObject powerUpSpawn;                       //The location the power up will spawn at.
     [SerializeField] private Collider2D collider;
     [SerializeField] private AudioSource powerUpEffect;
     [SerializeField] private AudioSource bombEffect;
+    [SerializeField, Range(0,100)] private int percentSpawnChance = 60;     //The chance that this platform will spawn an item when enabled
 
     private ItemInfo itemToUse;
     private SpriteRenderer renderer;
@@ -21,22 +22,28 @@ public class PlatformWithItem : MonoBehaviour
     {
         itemManager = FindObjectOfType<ItemManager>();
         renderer = powerUpSpawn.GetComponent<SpriteRenderer>();
-        //itemToUse = items[Random.Range(0, items.Length)];
+    
     }
 
     private void OnEnable()
     {
+
         if (renderer == null)
         {
             renderer = powerUpSpawn.GetComponent<SpriteRenderer>();
         }
 
-        itemToUse = items[Random.Range(0, items.Length)];
-        renderer.enabled = true;
-        collider.enabled = true;
-        collected = false;
+        collider.enabled = false;
+        renderer.enabled = false;
 
-        renderer.sprite = itemToUse.icon;
+        if (Random.Range(0,100) <= percentSpawnChance - 1 )
+        {
+            itemToUse = items[Random.Range(0, items.Length)];
+            renderer.enabled = true;
+            collider.enabled = true;
+            collected = false;
+            renderer.sprite = itemToUse.icon;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -56,6 +63,7 @@ public class PlatformWithItem : MonoBehaviour
 
             collected = true;
             renderer.enabled = false;
+            collider.enabled = false;
             itemManager.ItemCollected(itemToUse.type, itemToUse.duration);
         }
     }

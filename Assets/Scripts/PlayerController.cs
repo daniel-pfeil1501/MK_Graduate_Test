@@ -11,11 +11,11 @@ public class PlayerController : MonoBehaviour
     private Collider2D collider;
 
 
-    [SerializeField] private float fallMulti = 2.5f;
-    [SerializeField] private float lowJumpMulti = 2f;
+    [SerializeField] private float fallMulti = 2.5f;        //Increases the decent speed of the player.
+    [SerializeField] private float lowJumpMulti = 2f;       //Increases the speed at the start of a jump.
 
-    [SerializeField] private float catchUpSpeed;
-    [SerializeField] private float climbSpeed;
+    [SerializeField] private float catchUpSpeed;            //The speed at which the player will catch up if they fall behind.
+    [SerializeField] private float climbSpeed;              //The speed at which the player will climb walls.
 
     private float defaultGravity;
 
@@ -72,7 +72,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.velocity += inputVelocity;
+        rb.velocity += inputVelocity * Vector2.up;
 
         Jump();
         Catchup();
@@ -94,7 +94,8 @@ public class PlayerController : MonoBehaviour
         return rb.velocity;
     }
 
-    private void Jump() //Jump calculations
+    //Jump calculations
+    private void Jump()
     {
         if (rb.velocity.y < 0)
         {
@@ -106,6 +107,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //When the player falls behind the centre, they will slowly catch back up.
     private void Catchup()
     {
         if(transform.position.x < -1)
@@ -114,6 +116,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Used to determine if the player should be climbing a wall.
     private bool DetectCollision()
     {
         bool hit = false;
@@ -127,6 +130,7 @@ public class PlayerController : MonoBehaviour
         return hit;
     }
 
+    //Adds power-up effects to the player.
     public void ApplyPowerUp(ItemManager.itemType type)
     {
         if(type == ItemManager.itemType.climb)
@@ -140,6 +144,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Removes power-up effects from the player.
     public void RemovePowerUp(ItemManager.itemType type)
     {
         if(type == ItemManager.itemType.climb)
@@ -153,6 +158,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Returns the player when the game is reset.
     public void ResetPlayer()
     {
         catchUpSpeed = playerStats.defaultCatchUpSpeed;
@@ -168,6 +174,7 @@ public class PlayerController : MonoBehaviour
         GetComponent<ParticleSystem>().Play();
     }
 
+    //Stores various stats used by the character.
     private struct PlayerStats
     {
         public float defaultClimbSpeed { get; }

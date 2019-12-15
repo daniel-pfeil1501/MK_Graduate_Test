@@ -8,9 +8,13 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] private GameStateMananger gameStateMananger;
     [SerializeField] private ItemManager powerUpManager;
+    [SerializeField] private LevelManager levelManager;
 
-    private Color colour;
-    [SerializeField] private float alphaIncreaseRate;
+    //Main Menu text.
+
+    [SerializeField] private Text mainMenuHighScoreText;
+
+    //Text used for the Game Over UI.
 
     [SerializeField] private Text gameOverText;
     [SerializeField] private Text runDistanceText;
@@ -20,25 +24,32 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text itemBonusText;
     [SerializeField] private Text scoreText;
     [SerializeField] private Text highScoreText;
-    [SerializeField] private Text currentDistanceText;
 
+    //Elements used in the in game UI.
+
+    [SerializeField] private Text currentDistanceText;
     [SerializeField] private Image climbSpeedBuffIcon;
     [SerializeField] private Slider climbSpeedSlider;
     [SerializeField] private Image catchUpBuffIcon;
     [SerializeField] private Slider catchUpSlider;
 
+    //A canvas for each state of the game that requires one.
+
     [SerializeField] private Canvas mainMenuCanvas;
     [SerializeField] private Canvas gameOverCanvas;
     [SerializeField] private Canvas inGameCanvas;
 
+
     private bool gameOver;
     private int score;
+
 
     private void Start()
     {
         score = 0;
         gameOver = false;
 
+        DisplayHighScore();
 
         inGameCanvas.enabled = false;
         gameOverCanvas.enabled = false;
@@ -47,9 +58,6 @@ public class UIManager : MonoBehaviour
         climbSpeedSlider.gameObject.SetActive(false);
         catchUpBuffIcon.enabled = false;
         catchUpSlider.gameObject.SetActive(false);
-
-        colour = gameOverText.color;
-        colour.a = 0;
     }
 
     private void OnEnable()
@@ -76,16 +84,12 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        if (colour.a < 1)
-        {
-            colour.a += alphaIncreaseRate * Time.deltaTime;
-            gameOverText.color = colour;
-        }
-        else
+        currentDistanceText.text = string.Format("Distance: {0,4}", levelManager.GetCurrentDistance());
+
+        if(gameOver && highScoreText.enabled == false)
         {
             CheckIfHighScore();
         }
-
     }
 
     public void OnGameOver()
@@ -131,10 +135,11 @@ public class UIManager : MonoBehaviour
     public void SetRunDistance(int dist)
     {
         runDistanceText.enabled = true;
-        runDistanceText.text = string.Format("You ran: {0,25} meters", dist);
+        runDistanceText.text = string.Format("You ran: {0,25} meters", (int)dist);
         score += dist;
     }
 
+    //Gets the total items collects for score and display.
     public void SetItemsCollected(int[] amount)
     {
         int itemBonus = 0;
@@ -152,7 +157,6 @@ public class UIManager : MonoBehaviour
     private void CheckIfHighScore()
     {
         int highScore = PlayerPrefs.GetInt("HighScore");
-        //scoreText.text = "Score: " + score.ToString();
         scoreText.text = string.Format("Total Score: {0,30}", score);
 
         if(score > highScore)
@@ -162,6 +166,12 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    private void DisplayHighScore()
+    {
+        mainMenuHighScoreText.text = string.Format("High score: {0,5}", PlayerPrefs.GetInt("HighScore"));
+    }
+
+    //Manages UI elements for power-ups.
     public void PowerUpCollected(ItemManager.itemType type)
     {
         if(type == ItemManager.itemType.climb)

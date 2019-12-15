@@ -5,25 +5,22 @@ using UnityEngine.UI;
 
 public class ItemManager : MonoBehaviour
 {
-    public enum itemType { climb, catchUp, bomb, NumberOfTypes} //final enum is used to detect the number of available items
+    public enum itemType { climb, catchUp, bomb, NumberOfTypes}         //final enum is used to detect the number of available items
 
-    public delegate void PickupItemDelegate(itemType type);
+    public delegate void PickupItemDelegate(itemType type);             //Announces when an item is picked up by the player.
     public event PickupItemDelegate puPickupEvent;
 
-    public delegate void ItemExpiredDelegate(itemType type);
+    public delegate void ItemExpiredDelegate(itemType type);            //Announces when an item expires.
     public event ItemExpiredDelegate expiredEvent;
-
-    public delegate void EndPowerupDelegate(itemType type);
-    public event EndPowerupDelegate puEndEvent;
 
     [SerializeField] private GameStateMananger gameStateManager;
 
-    [SerializeField] private Slider climbProgress;
+    [SerializeField] private Slider climbProgress;                      //Sliders the remaining duration of the power-ups on the in-game UI.
     [SerializeField] private Slider catchUpProgress;
 
-    [SerializeField] private float maxDuration;
+    [SerializeField] private float maxDuration;                         //Picking up a power up while the same one is already active increases the time up to this amount.
 
-    private float[] powerUpTimers;
+    private float[] powerUpTimers;                                      //Arrays to store various information about items collected.
     private bool[] activePowerUps;
     private int[] itemsCollected;
 
@@ -64,7 +61,7 @@ public class ItemManager : MonoBehaviour
         }
     }
 
-
+    //Receives and processes information about items picked up.
     public void ItemCollected(itemType type, float duration)
     {
         int i = (int)type;
@@ -98,7 +95,8 @@ public class ItemManager : MonoBehaviour
 
     }
 
-    public void SendTotalItemsCollected()
+    //At the end of the game sends total items collected to the UI to display and calculate score.
+    public void SendTotalItemsCollected()                   
     {
         FindObjectOfType<UIManager>().SetItemsCollected(itemsCollected);
 

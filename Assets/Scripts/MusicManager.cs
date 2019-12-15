@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Changes the current music based on game state events.
 public class MusicManager : MonoBehaviour
 {
     [SerializeField] private GameStateMananger gameStateManager;

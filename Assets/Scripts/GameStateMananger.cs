@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//Sends events out based on the current game state.
 public class GameStateMananger : MonoBehaviour
 {
     public delegate void OnGameOverDelegate();
